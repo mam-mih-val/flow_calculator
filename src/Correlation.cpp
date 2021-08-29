@@ -61,8 +61,9 @@ Correlation operator*(const Correlation& first, const std::vector<double>& tenso
   auto result = Correlation(first);
   if( first.components_.size() != tensor.size() )
     throw std::runtime_error( "Correlation::operator*(): unequal size of vectors" );
-  for( size_t i=0; i<first.components_.size(); i++ )
-    result.components_.at(i) = first.components_.at(i)*tensor.at(i);
+  for( size_t i=0; i<first.components_.size(); i++ ) {
+    result.components_.at(i) = first.components_.at(i) * tensor.at(i);
+  }
   return result;
 }
 Correlation operator*(const Correlation& first, double num) {

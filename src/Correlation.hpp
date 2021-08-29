@@ -18,16 +18,31 @@ class Correlation : public TObject {
               const std::vector<std::string>& component_names);
   Correlation(const Correlation&) = default;
   ~Correlation() override = default;
-  Qn::DataContainerStatCalculate operator[]( size_t idx ){return components_.at(idx);};
+  void AddComponent( const Qn::DataContainerStatCalculate& component, const std::string& name ){
+    components_.push_back( component );
+    component_names_.push_back(name);
+  }
+  void RemoveComponent( size_t idx ){
+    assert(idx < components_.size());
+    auto it = components_.begin()+idx;
+    components_.erase(it);
+    assert(idx < component_names_.size());
+    auto it_names = component_names_.begin()+idx;
+    component_names_.erase(it_names);
+  }
+  Qn::DataContainerStatCalculate& operator[]( size_t idx ){return components_.at(idx);};
   [[nodiscard]] const std::string &Title() const { return title_; }
-  [[nodiscard]] const std::vector<std::string> &GetComponentNames() const {
+  [[nodiscard]] std::vector<std::string> &GetComponentNames() {
     return component_names_;
   }
-  [[nodiscard]] const std::vector<std::string> &GetVectorNames() const {
+  [[nodiscard]] std::vector<std::string> &GetVectorNames() {
     return vector_names_;
   }
   size_t Size(){ return components_.size(); };
   void SetTitle(const std::string &titles) { title_ = titles; }
+  void SetComponentNames(const std::vector<std::string> &component_names) {
+    component_names_ = component_names;
+  }
   void Save( const std::string& name ){
     int idx=0;
     for( auto component : components_ ){

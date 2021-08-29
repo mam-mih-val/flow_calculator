@@ -2,12 +2,12 @@
 // Created by mikhail on 8/1/21.
 //
 void example_v2(){
-  auto file = TFile::Open( "~/Correlations/au123_elliptic_2021_07_27.root" );
+  auto file = TFile::Open( "~/Correlations/au123_all_elliptic_2021_07_28.root" );
   std::vector<std::string> ep_vectors{ "W1_RESCALED", "W2_RESCALED", "W3_RESCALED" };
   std::vector<std::string> res_vectors{ "W1_RESCALED", "W2_RESCALED", "W3_RESCALED", "Mf_RESCALED", "Mb_RESCALED" };
   std::vector<std::string> components{"x1x1", "y1y1"};
 
-  auto file_out = TFile::Open( "example_v2.root", "recreate" );
+  auto file_out = TFile::Open( "au123_all_elliptic_2021_07_28.root", "recreate" );
   file_out->cd();
 
   for( size_t i=0; i<ep_vectors.size(); ++i ){
