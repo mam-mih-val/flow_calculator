@@ -37,3 +37,21 @@ std::vector<Correlation> Functions::VectorResolutions3S(TFile* file,
   }
   return res_vector;
 }
+std::vector<Correlation>
+Functions::VectorResolutions4S(TFile *file, const std::string &directory,
+                               const std::string &ep_vector,
+                               const std::vector<std::string> &sub_vectors,
+                               const std::vector<std::string> &res_vectors,
+                               const std::vector<std::string> &comp_names) {
+  std::vector<Correlation> result_vector;
+  for( auto sub : sub_vectors ){
+    auto ep_sub = Correlation( file, directory, {ep_vector, sub}, comp_names ) * 2;
+    auto vec_res_sub = VectorResolutions3S( file, directory, sub, res_vectors, comp_names );
+    for( auto R1_sub : vec_res_sub ){
+      auto res_4sub = ep_sub / R1_sub;
+      res_4sub.SetTitle( ep_vector+"."+R1_sub.Title() );
+      result_vector.emplace_back( res_4sub );
+    }
+  }
+  return result_vector;
+}

@@ -19,6 +19,12 @@ public:
                                                       const std::string& ep_vector,
                                                       const std::vector<std::string>& res_vectors,
                                                       const std::vector<std::string>& comp_names);
+  static std::vector<Correlation> VectorResolutions4S(TFile* file,
+                                                      const std::string& directory,
+                                                      const std::string& ep_vector,
+                                                      const std::vector<std::string>& sub_vectors,
+                                                      const std::vector<std::string>& res_vectors,
+                                                      const std::vector<std::string>& comp_names);
 private:
   ClassDefOverride(Functions, 1);
 };
