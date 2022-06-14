@@ -9,7 +9,7 @@
 #include <TFile.h>
 #include <TObject.h>
 
-class Correlation : public TObject {
+class Correlation {
  public:
   Correlation() = default;
   Correlation(TFile* file,
@@ -17,7 +17,7 @@ class Correlation : public TObject {
               const std::vector<std::string>& vector_names,
               const std::vector<std::string>& component_names);
   Correlation(const Correlation&) = default;
-  ~Correlation() override = default;
+  virtual ~Correlation() = default;
   void AddComponent( const Qn::DataContainerStatCalculate& component, const std::string& name ){
     components_.push_back( component );
     component_names_.push_back(name);
@@ -65,7 +65,6 @@ protected:
   std::string title_;
   std::vector<std::string> component_names_;
   std::vector<std::string> vector_names_;
-  ClassDefOverride(Correlation, 1)
 };
 
 #endif//QNANALYSIS_SRC_QNANALYSISCALCULATE_CORRELATION_HPP_

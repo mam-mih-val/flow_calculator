@@ -4,8 +4,6 @@
 
 #include "Correlation.hpp"
 
-ClassImp(Correlation);
-
 Correlation::Correlation(TFile* file,
                          const std::string& directory,
                          const std::vector<std::string>& vector_names,
