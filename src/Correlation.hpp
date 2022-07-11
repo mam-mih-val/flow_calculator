@@ -6,6 +6,7 @@
 #define QNANALYSIS_SRC_QNANALYSISCALCULATE_CORRELATION_HPP_
 
 #include <QnTools/DataContainer.hpp>
+#include <QnTools/Axis.hpp>
 #include <TFile.h>
 #include <TObject.h>
 
@@ -18,6 +19,8 @@ class Correlation {
               const std::vector<std::string>& component_names);
   Correlation(const Correlation&) = default;
   virtual ~Correlation() = default;
+  void Rebin(std::vector<Qn::AxisD>);
+  void Project(std::vector<std::string> project);
   void AddComponent( const Qn::DataContainerStatCalculate& component, const std::string& name ){
     components_.push_back( component );
     component_names_.push_back(name);

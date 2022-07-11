@@ -105,3 +105,15 @@ Correlation MatrixMultiply( const Correlation& first, const Correlation& second 
   }
   return result;
 }
+void Correlation::Rebin(std::vector<Qn::AxisD> axes) {
+  for( const auto& axis : axes ){
+    for( auto& correlation : components_ ){
+      correlation = correlation.Rebin( axis );
+    }
+  }
+}
+void Correlation::Project(std::vector<std::string> axes) {
+  for( auto& correlation : components_ ){
+    correlation = correlation.Projection( axes );
+  }
+}
