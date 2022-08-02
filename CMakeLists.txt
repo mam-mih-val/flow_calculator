@@ -57,7 +57,7 @@ ROOT_GENERATE_DICTIONARY( G__Calculator ${HEADERS}
         -I ${CMAKE_SOURCE_DIR}
         )
 add_library(Calculator SHARED ${SOURCES} G__Calculator.cxx )
-target_link_libraries(Calculator PRIVATE QnTools::Base ${ROOT_LIBRARIES})
+target_link_libraries(Calculator PRIVATE QnTools::Base ROOT::Tree ROOT::RIO ROOT::MathMore)
 
 add_executable(Calculate src/Calculate.cpp)
-target_link_libraries(Calculate QnTools::Base ${ROOT_LIBRARIES} Calculator )
+target_link_libraries(Calculate QnTools::Base ROOT::Tree ROOT::RIO Calculator)

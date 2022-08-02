@@ -25,7 +25,10 @@ public:
                                                       const std::vector<std::string>& sub_vectors,
                                                       const std::vector<std::string>& res_vectors,
                                                       const std::vector<std::string>& comp_names);
+  static Correlation ExtrapolateToFullEvent(const Correlation& half_event_resolution, double order);
 private:
+  static double ResolutionFunction( double chi, double k, double y );
+  static double DichotomyResolutionSolver( double res, double order, std::vector<double> range = {0., 10.} );
   ClassDefOverride(Functions, 1);
 };
 

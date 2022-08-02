@@ -3,6 +3,7 @@
 //
 
 #include "Functions.hpp"
+#include "Math/SpecFuncMathMore.h"
 
 ClassImp(Functions);
 
@@ -16,7 +17,7 @@ std::vector<Correlation> Functions::VectorResolutions3S(TFile* file,
                                                     const std::vector<std::string>& res_vectors,
                                                     const std::vector<std::string>& comp_names){
   std::vector<Correlation> res_vector;
-  auto qa = ep_vector;
+  const auto& qa = ep_vector;
   auto res_v = res_vectors;
   auto it = std::find( res_v.begin(), res_v.end(), qa );
   if (it != res_v.end()){
@@ -71,7 +72,7 @@ Functions::VectorResolutions4S(TFile *file, const std::string &directory,
                                const std::vector<std::string> &res_vectors,
                                const std::vector<std::string> &comp_names) {
   std::vector<Correlation> result_vector;
-  for( auto sub : sub_vectors ){
+  for( const auto& sub : sub_vectors ){
     Correlation ep_sub;
     try {
       ep_sub = Correlation(file, directory, {ep_vector, sub}, comp_names) * 2;
@@ -79,7 +80,7 @@ Functions::VectorResolutions4S(TFile *file, const std::string &directory,
       ep_sub = Correlation(file, directory, {sub, ep_vector}, comp_names) * 2;
     }
     auto vec_res_sub = VectorResolutions3S( file, directory, sub, res_vectors, comp_names );
-    for( auto R1_sub : vec_res_sub ){
+    for( const auto& R1_sub : vec_res_sub ){
       auto res_4sub = ep_sub / R1_sub;
       res_4sub.SetTitle( ep_vector+"."+R1_sub.Title() );
       result_vector.emplace_back( res_4sub );
@@ -87,3 +88,50 @@ Functions::VectorResolutions4S(TFile *file, const std::string &directory,
   }
   return result_vector;
 }
+
+Correlation
+Functions::ExtrapolateToFullEvent(const Correlation &half_event_resolution,
+                                  double order) {
+  auto result = half_event_resolution;
+  for( auto& component : result.GetComponents() ){
+    for( auto& bin : component ){
+      auto mean = bin.Mean();
+      if( fabs( mean ) < std::numeric_limits<double>::min() )
+        continue;
+      auto chi = DichotomyResolutionSolver( mean, order, {-10.0, 10.0} );
+      auto extrapolation = ResolutionFunction( sqrt(2)*chi, order, 0 );
+      bin = bin * extrapolation / mean;
+    }
+  }
+  return result;
+}
+double Functions::DichotomyResolutionSolver(double res,
+                                            double order,
+                                            std::vector<double> range) {
+  auto a = range.at(0);
+  auto b = range.at(1);
+  while( fabs(a-b) > 1e-3 ){
+    auto c = (a + b) / 2;
+    auto fa = ResolutionFunction(a, order, res);
+    auto fc = ResolutionFunction(c, order, res);
+    if( fa*fc < 0 ){
+      b = c;
+      continue;
+    }
+    auto fb = ResolutionFunction(b, order, res);
+    if( fb*fc < 0 ){
+      a = c;
+      continue;
+    }
+    throw std::runtime_error("The case is unsolvable in this range");
+  }
+  return (a+b)/2;
+}
+double Functions::ResolutionFunction(double chi, double k, double y) {
+  auto chi2_over_2 = chi*chi / 2;
+  auto f1 = sqrt( M_PI ) / 2 * chi * exp( -chi2_over_2 );
+  auto f2 = ROOT::Math::cyl_bessel_i((k-1)/2, chi2_over_2);
+  auto f3 = ROOT::Math::cyl_bessel_i((k+1)/2, chi2_over_2);
+  auto f = f1*(f2+f3);
+  return f - y;
+};

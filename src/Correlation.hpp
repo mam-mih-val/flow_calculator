@@ -18,6 +18,9 @@ class Correlation {
               const std::vector<std::string>& vector_names,
               const std::vector<std::string>& component_names);
   Correlation(const Correlation&) = default;
+  Correlation& operator=(const Correlation&) = default;
+  Correlation(Correlation&&) = default;
+  Correlation& operator=(Correlation&&) = default;
   virtual ~Correlation() = default;
   void Rebin(std::vector<Qn::AxisD>);
   void Project(std::vector<std::string> project);
@@ -53,6 +56,7 @@ class Correlation {
       idx++;
     }
   }
+  std::vector<Qn::DataContainerStatCalculate>& GetComponents(){ return components_; }
   friend Correlation operator+( const Correlation&, const Correlation& );
   friend Correlation operator-( const Correlation&, const Correlation& );
   friend Correlation operator*( const Correlation&, const Correlation& );
