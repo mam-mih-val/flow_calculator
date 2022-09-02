@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
-project(flow_calculator)
+project(KALKULYATOR)
 set(CMAKE_CXX_FLAGS "-Wall")
 set (Calculator_VERSION_MAJOR 0)
 set (Calculator_VERSION_MINOR 9)
@@ -59,5 +59,5 @@ ROOT_GENERATE_DICTIONARY( G__Calculator ${HEADERS}
 add_library(Calculator SHARED ${SOURCES} G__Calculator.cxx )
 target_link_libraries(Calculator PRIVATE QnTools::Base ROOT::Tree ROOT::RIO ROOT::MathMore)
 
-add_executable(Calculate src/Calculate.cpp)
-target_link_libraries(Calculate QnTools::Base ROOT::Tree ROOT::RIO Calculator)
+add_executable(C4NTATb src/Calculate.cpp)
+target_link_libraries(C4NTATb QnTools::Base ROOT::Tree ROOT::RIO Calculator)
