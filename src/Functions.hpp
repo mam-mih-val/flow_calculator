@@ -11,9 +11,14 @@
 
 class Functions : public TObject {
 public:
-  Functions() = default;
+  Functions() = delete;
   ~Functions() override = default;
   static Correlation Resolution3S(const Correlation&, const Correlation&, const Correlation&);
+  static Correlation Resolution2S(TFile* file,
+                                  const std::string& directory,
+                                  const std::vector<std::string>& res_vectors,
+                                  const std::vector<std::string>& comp_names,
+                                  double scale=1.0);
   static std::vector<Correlation> VectorResolutions3S(TFile* file,
                                                       const std::string& directory,
                                                       const std::string& ep_vector,

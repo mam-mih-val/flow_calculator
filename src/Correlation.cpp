@@ -11,24 +11,29 @@ Correlation::Correlation(TFile* file,
   component_names_ = component_names;
   vector_names_ = vector_names;
   Qn::DataContainerStatCalculate* container{nullptr};
-  for( const auto& component : component_names ) {
-    std::string name = directory + "/";
-    for (const auto &vector : vector_names) {
-      name += vector + ".";
+  auto possible_correlation_names = GetNameCombinations( vector_names );
+  for( const auto& possible_name : possible_correlation_names  ) {
+    for (const auto &component : component_names) {
+      std::string name = directory + "/" + possible_name + "." + component;
+      file->GetObject(name.c_str(), container);
+      if (container) {
+        components_.emplace_back(*container);
+        continue;
+      } else {
+        Qn::DataContainerStatCollect *container_collect{nullptr};
+        file->GetObject(name.c_str(), container_collect);
+        if (container_collect) {
+          components_.emplace_back(*container_collect);
+          continue;
+        }
+      }
     }
-    name+=component;
-    file->GetObject(name.c_str(), container);
-    if( container ){
-      components_.emplace_back(*container);
-    } else{
-      Qn::DataContainerStatCollect* container_collect{nullptr};
-      file->GetObject(name.c_str(), container_collect);
-      if( container_collect ) {
-        components_.emplace_back(*container_collect);
-      } else
-        throw std::runtime_error( "Correlation::Correlation(): No such correlation "+name+" in file" );
-    }
+    if( component_names.size() == components_.size() )
+      return;
   }
+  throw std::runtime_error( std::string(__func__) + ": No such container with the name "
+                           + possible_correlation_names.front()+": "+possible_correlation_names.size()
+                           + " combinations were attempted" );
 }
 
 Correlation operator+(const Correlation& first, const Correlation& second) {
@@ -116,4 +121,29 @@ void Correlation::Project(std::vector<std::string> axes) {
   for( auto& correlation : components_ ){
     correlation = correlation.Projection( axes );
   }
+}
+std::vector<std::string> Correlation::GetNameCombinations(std::vector<std::string> vector_names) {
+  if( vector_names.size() == 1 ){
+    return vector_names;
+  }
+  if( vector_names.size() == 2 ){
+    std::vector<std::string> combinations;
+    auto qa = vector_names.at(0);
+    auto qb = vector_names.at(1);
+    combinations.emplace_back( qa+"."+qb );
+    combinations.emplace_back( qb+"."+qa );
+    return combinations;
+  }
+  if( vector_names.size() > 2 ){
+    std::vector<std::string> combinations;
+    auto qa = vector_names.front();
+    vector_names.erase(vector_names.begin());
+    auto prev_combinations = GetNameCombinations( vector_names );
+    for( const auto& comb : prev_combinations ){
+      combinations.emplace_back( qa + "." +comb );
+      combinations.emplace_back( comb + "." + qa );
+    }
+    return combinations;
+  }
+  return {};
 }

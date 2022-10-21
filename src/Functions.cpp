@@ -11,6 +11,22 @@ Correlation Functions::Resolution3S(const Correlation& first, const Correlation&
   auto result = Sqrt(first*second/third);
   return result;
 }
+
+Correlation Functions::Resolution2S(TFile* file,
+                                    const std::string& directory,
+                                    const std::vector<std::string>& res_vectors,
+                                    const std::vector<std::string>& comp_names,
+                                    double scale) {
+  if( res_vectors.size() != 2 ) {
+    std::string error_message = std::string(__func__) + ": vector of resolution vectors is expected to contain 2 entries";
+    throw std::runtime_error(error_message);
+  }
+  auto qa_qb = Correlation( file, directory, res_vectors, comp_names );
+  qa_qb = qa_qb * ( 2 * scale );
+  auto result = Sqrt( qa_qb );
+  return result;
+}
+
 std::vector<Correlation> Functions::VectorResolutions3S(TFile* file,
                                                     const std::string& directory,
                                                     const std::string& ep_vector,
@@ -27,37 +43,9 @@ std::vector<Correlation> Functions::VectorResolutions3S(TFile* file,
     auto qb = res_v.at(i);
     for( size_t j=i+1; j<res_v.size(); ++j ){
       auto qc = res_v.at(j);
-      Correlation qa_qb;
-      try {
-        qa_qb = Correlation (file, directory, {qa, qb}, comp_names);
-      } catch ( std::exception& ){
-        try {
-          qa_qb = Correlation(file, directory, {qb, qa}, comp_names);
-        }catch ( std::exception& ){
-          continue;
-        }
-      }
-      Correlation qa_qc;
-      try {
-        qa_qc = Correlation(file, directory, {qa, qc}, comp_names);
-      }catch ( std::exception& ){
-        try {
-          qa_qc = Correlation(file, directory, {qc, qa}, comp_names);
-        }catch ( std::exception& ){
-          continue;
-        }
-      }
-      Correlation qb_qc;
-      try {
-        qb_qc = Correlation(file, directory, {qb, qc}, comp_names);
-      }catch ( std::exception& ){
-        try {
-          qb_qc = Correlation(file, directory, {qc, qb}, comp_names);
-        }catch ( std::exception& ){
-          continue;
-        }
-      }
-
+      Correlation qa_qb = Correlation (file, directory, {qa, qb}, comp_names);
+      Correlation qa_qc = Correlation(file, directory, {qa, qc}, comp_names);
+      Correlation qb_qc = Correlation(file, directory, {qb, qc}, comp_names);
       auto res_qa = Functions::Resolution3S( qa_qb*2, qa_qc*2, qb_qc*2 );
       res_qa.SetTitle( qa+"("+qb+","+qc+")" );
       res_vector.emplace_back(res_qa);
@@ -73,12 +61,7 @@ Functions::VectorResolutions4S(TFile *file, const std::string &directory,
                                const std::vector<std::string> &comp_names) {
   std::vector<Correlation> result_vector;
   for( const auto& sub : sub_vectors ){
-    Correlation ep_sub;
-    try {
-      ep_sub = Correlation(file, directory, {ep_vector, sub}, comp_names) * 2;
-    } catch (std::exception&){
-      ep_sub = Correlation(file, directory, {sub, ep_vector}, comp_names) * 2;
-    }
+    Correlation ep_sub = Correlation(file, directory, {ep_vector, sub}, comp_names) * 2;
     auto vec_res_sub = VectorResolutions3S( file, directory, sub, res_vectors, comp_names );
     for( const auto& R1_sub : vec_res_sub ){
       auto res_4sub = ep_sub / R1_sub;

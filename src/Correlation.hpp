@@ -67,7 +67,11 @@ class Correlation {
   friend Correlation operator/( const Correlation&, double );
   friend Correlation Sqrt( const Correlation& );
   friend Correlation MatrixMultiply( const Correlation&, const Correlation& );
+
 protected:
+
+  static std::vector<std::string> GetNameCombinations(std::vector<std::string> vector_names);
+
   std::vector<Qn::DataContainerStatCalculate> components_;
   std::string title_;
   std::vector<std::string> component_names_;
