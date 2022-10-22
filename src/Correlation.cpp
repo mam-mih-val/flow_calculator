@@ -11,6 +11,28 @@ Correlation::Correlation(TFile* file,
   component_names_ = component_names;
   vector_names_ = vector_names;
   Qn::DataContainerStatCalculate* container{nullptr};
+  // Firstly attempting to read the correlation with straightforward vector name composition
+  for (const auto &component : component_names) {
+    std::string name = directory + "/";
+    for( const auto& vec : vector_names ){
+      name+="."+vec;
+    }
+    name+=component;
+    file->GetObject(name.c_str(), container);
+    if (container) {
+      components_.emplace_back(*container);
+      continue;
+    } else {
+      Qn::DataContainerStatCollect *container_collect{nullptr};
+      file->GetObject(name.c_str(), container_collect);
+      if (container_collect) {
+        components_.emplace_back(*container_collect);
+        continue;
+      }
+    }
+  }
+  if( component_names.size() == components_.size() )
+    return;
   auto possible_correlation_names = GetNameCombinations( vector_names );
   for( const auto& possible_name : possible_correlation_names  ) {
     for (const auto &component : component_names) {
