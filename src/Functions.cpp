@@ -43,9 +43,18 @@ std::vector<Correlation> Functions::VectorResolutions3S(TFile* file,
     auto qb = res_v.at(i);
     for( size_t j=i+1; j<res_v.size(); ++j ){
       auto qc = res_v.at(j);
-      Correlation qa_qb = Correlation (file, directory, {qa, qb}, comp_names);
-      Correlation qa_qc = Correlation(file, directory, {qa, qc}, comp_names);
-      Correlation qb_qc = Correlation(file, directory, {qb, qc}, comp_names);
+      Correlation qa_qb;
+      Correlation qb_qc;
+      Correlation qa_qc;
+      try {
+        qa_qb = Correlation(file, directory, {qa, qb}, comp_names);
+        qa_qc = Correlation(file, directory, {qa, qc}, comp_names);
+        qb_qc = Correlation(file, directory, {qb, qc}, comp_names);
+      } catch (std::exception&){
+        std::cerr << " Warning: in function " << __func__  << "()\nOne of the correlations between vectors: " << qa << " & " << qb << " & " << qc << " is not found. Step skipped" << std::endl;
+        continue;
+      }
+
       auto res_qa = Functions::Resolution3S( qa_qb*2, qa_qc*2, qb_qc*2 );
       res_qa.SetTitle( qa+"("+qb+","+qc+")" );
       res_vector.emplace_back(res_qa);
@@ -61,7 +70,12 @@ Functions::VectorResolutions4S(TFile *file, const std::string &directory,
                                const std::vector<std::string> &comp_names) {
   std::vector<Correlation> result_vector;
   for( const auto& sub : sub_vectors ){
-    Correlation ep_sub = Correlation(file, directory, {ep_vector, sub}, comp_names) * 2;
+    Correlation ep_sub;
+    try {
+      ep_sub = Correlation(file, directory, {ep_vector, sub}, comp_names) * 2;
+    } catch ( std::exception& ){
+      std::cerr << "Warning in function " << __func__ << "()\nCorrelations between vectors: " << ep_vector << " & " << sub << " is not found. Step skipped" << std::endl;
+    }
     auto vec_res_sub = VectorResolutions3S( file, directory, sub, res_vectors, comp_names );
     for( const auto& R1_sub : vec_res_sub ){
       auto res_4sub = ep_sub / R1_sub;
