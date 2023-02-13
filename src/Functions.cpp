@@ -88,7 +88,7 @@ Functions::VectorResolutions4S(TFile *file, const std::string &directory,
 
 Correlation
 Functions::ExtrapolateToFullEvent(const Correlation &half_event_resolution,
-                                  double order) {
+                                  double order, double end_order) {
   auto result = half_event_resolution;
   for( auto& component : result.GetComponents() ){
     for( auto& bin : component ){
@@ -96,7 +96,7 @@ Functions::ExtrapolateToFullEvent(const Correlation &half_event_resolution,
       if( fabs( mean ) < std::numeric_limits<double>::min() )
         continue;
       auto chi = DichotomyResolutionSolver( mean, order, {-10.0, 10.0} );
-      auto extrapolation = ResolutionFunction( sqrt(2)*chi, order, 0 );
+      auto extrapolation = ResolutionFunction( sqrt(2)*chi, end_order , 0 );
       bin = bin * extrapolation / mean;
     }
   }
